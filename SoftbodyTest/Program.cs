@@ -2,6 +2,7 @@
 using System.Numerics;
 using Raylib_cs;
 using static Raylib_cs.Rlgl;
+using static System.Math;
 
 namespace SoftbodyTest;
 
@@ -12,11 +13,11 @@ class Program
 
     private const float DeltaTime = 1.0f / 60.0f;
 
-    private const float K_N = 500f;
+    private const float K_N = 1000f;
     private const float L_N = 2f;
 
-    private const float L_D = 2.8f;
-    private const float K_D = 500f;
+    private const float L_D = 1.414f * 2;
+    private const float K_D = 1000f;
 
     private const float NodeRadius = .1f;
 
@@ -46,7 +47,7 @@ class Program
     {
         Raylib.InitWindow(WindowWidth, WindowHeight, "Softbody Test");
         initPhysics();
-        _texture = Raylib.LoadTexture("./dia-de-la-risa.jpg");
+        _texture = Raylib.LoadTexture("./Resources/pork.jpg");
         Raylib.SetTargetFPS(60);
         while (!Raylib.WindowShouldClose())
         {
@@ -104,24 +105,17 @@ class Program
             _nodes.Add(new Node(_nodesPositions[i], 1.0f));
         }
 
-        for (int i = 0; i < _nodes.Count; i++)
+        var centralNode = new Node(new Vector2(1.7f, 1.7f), 1.0f);
+        _nodes.Add(centralNode);
+
+        for (int i = 0; i < 4; i++)
         {
-            for (int n = 0; n < _nodes.Count; n++)
-            {
-                if (n != i)
-                {
-                    if (Math.Abs(i - n) < 1)
-                    {
-                        _nodes[i].Neighbours.Add(n, new Vector2(L_N, K_N));
-                    }
-                    else
-                    {
-                        _nodes[i].Neighbours.Add(n, new Vector2(L_D, K_D));
-                    }
-                }
-                
-            }
+            _nodes[i].Neighbours.Add(i == 0 ? 3 : i - 1, new Vector2(L_N, K_N));
+            _nodes[i].Neighbours.Add(i == 3 ? 0 : i + 1, new Vector2(L_N, K_N));
+            _nodes[i].Neighbours.Add(4, new Vector2(L_D / 2, K_D));
+            _nodes[4].Neighbours.Add(i, new Vector2(L_D / 2, K_D));
         }
+  
     }
 
     private static void drawNodes()
@@ -131,10 +125,10 @@ class Program
         Color4f(1.0f, 1.0f, 1.0f, 1.0f);
         DisableBackfaceCulling();
         
-        foreach (var node in _nodes)
+        for (int i = 0; i < 4; i++)
         {
-            var ni = _nodes.IndexOf(node);
-            TexCoord2f(_texCoords[ni, 0], _texCoords[ni, 1]);
+            TexCoord2f(_texCoords[i, 0], _texCoords[i, 1]);
+            var node = _nodes[i];
             Vertex2f(node.Position.X * 100, node.Position.Y * 100);
         }
         End();

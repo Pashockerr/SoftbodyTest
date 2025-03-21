@@ -11,4 +11,10 @@
       <PackageReference Include="Raylib-cs" Version="7.0.0" />
     </ItemGroup>
 
+    <ItemGroup>
+      <None Update="Resources\pork.jpg">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
 </Project>
